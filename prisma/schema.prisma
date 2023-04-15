@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("LOCAL_URL")
+}
+
+model Champion {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @unique
+  votes     Int
+
+  versus  Versus[] @relation("champion1")
+  versus2 Versus[] @relation("champion2")
+}
+
+model Versus {
+  id          String   @id @default(uuid()) @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  champion1   Champion @relation("champion1", fields: [champion1Id], references: [id])
+  champion2   Champion @relation("champion2", fields: [champion2Id], references: [id])
+  champion1Id String   @db.Uuid
+  champion2Id String   @db.Uuid
+}
