@@ -5,15 +5,20 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      width: {
+        layout: "64rem",
+      },
+    },
     colors: {
-      primary: '#2D389A',
-      white: '#ffffff'
+      "blue-primary": "#2D389A",
+      "blue-secondary": "#EBF0FF",
+      white: "#ffffff",
     },
     fontSize: {
-      base: '1rem',
-      xl: '2rem',
-    }
+      base: "1rem",
+      xl: "2rem",
+    },
   },
   plugins: [],
-}
+};
