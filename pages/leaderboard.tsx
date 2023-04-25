@@ -1,4 +1,6 @@
-import { PrismaClient, Champion } from "@prisma/client";
+import Image from "next/image";
+import { PrismaClient } from "@prisma/client";
+import { URLSquare } from "../services/communityDragon";
 
 type ChampionDTO = {
   name: string;
@@ -9,7 +11,7 @@ export async function getStaticProps() {
   const prisma = new PrismaClient();
   const champions = await prisma.champion.findMany();
   const championsSortedByVotes = champions.sort((champ1, champ2) => {
-    return champ1.votes - champ2.votes;
+    return champ2.votes - champ1.votes;
   });
   return {
     props: {
@@ -30,21 +32,31 @@ export default function Leaderboard({
     <>
       <main className="flex flex-col items-center">
         <div className="mt-20 mb-6 w-layout bg-blue-primary p-4 rounded-md">
-          <table className="bg-white w-full rounded-md text-center">
+          <table className="bg-white w-full rounded-md">
             <thead>
               <tr className="h-14">
-                <td>Rank</td>
-                <td>Champions</td>
-                <td>Votes</td>
+                <th className="w-24 font-normal text-center">Rank</th>
+                <th className="w-60 font-normal">Champion</th>
+                <th className="font-normal">Votes</th>
               </tr>
             </thead>
             <tbody>
               {champions.map((champion, rankChampion: number) => {
                 return (
                   <tr key={rankChampion} className="h-14 odd:bg-blue-secondary">
-                    <td>{rankChampion + 1}</td>
-                    <td>{champion.name}</td>
-                    <td>{champion.votes}</td>
+                    <td className="text-center">{rankChampion + 1}</td>
+                    <td>
+                      <div className="flex flex-row gap-4 items-center pl-14">
+                        <Image
+                          width="32"
+                          height="32"
+                          src={URLSquare(champion.name)}
+                          alt={champion.name}
+                        ></Image>
+                        <span>{champion.name}</span>
+                      </div>
+                    </td>
+                    <td className="text-center">{champion.votes}</td>
                   </tr>
                 );
               })}
