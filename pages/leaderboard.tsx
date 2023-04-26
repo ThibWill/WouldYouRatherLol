@@ -63,6 +63,7 @@ export default function Leaderboard({
             </tbody>
           </table>
         </div>
+        <div className="grow"></div>
       </main>
     </>
   );
