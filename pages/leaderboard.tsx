@@ -31,12 +31,13 @@ export default function Leaderboard({
   return (
     <>
       <main className="flex flex-col items-center">
-        <div className="mt-20 mb-6 w-layout bg-blue-primary p-4 rounded-md">
+        <div className="mt-20 mb-6 w-layout border-blue-primary border-8 rounded-md">
           <table className="bg-white w-full rounded-md">
             <thead>
               <tr className="h-14">
                 <th className="w-24 font-normal text-center">Rank</th>
                 <th className="w-60 font-normal">Champion</th>
+                <th className="font-normal">--</th>
                 <th className="font-normal">Votes</th>
               </tr>
             </thead>
@@ -56,6 +57,7 @@ export default function Leaderboard({
                         <span>{champion.name}</span>
                       </div>
                     </td>
+                    <td className="text-center">--</td>
                     <td className="text-center">{champion.votes}</td>
                   </tr>
                 );

@@ -22,9 +22,8 @@ export async function getStaticProps() {
 export function championsVersusSplashart(championName1: string): JSX.Element {
   return (
     <Image
-      className="object-cover"
-      width={700}
-      height={700}
+      className="object-cover cursor-pointer hover:scale-125 duration-300"
+      fill={true}
       src={URLSplashArt(championName1)}
       alt={championName1}
     ></Image>
@@ -83,14 +82,24 @@ export default function VersusLoL({
 }) {
   const [champions, setChampions] = useState(championsVersus);
 
-  voteForChampion(champions, "alistar");
+  // voteForChampion(champions, "alistar");
 
   return (
     <>
-      <main className="flex flex-row min-h-full justify-between items-stretch">
-        {champions.map((c, i) => (
-          <section key={i}>{championsVersusSplashart(c.name)}</section>
-        ))}
+      <main className="flex flex-col grow">
+        <div className="flex flex-row justify-between items-stretch grow">
+          {champions.map((c, i) => (
+            <section
+              className="h-full relative w-[50%] flex justify-center items-center overflow-hidden"
+              key={i}
+            >
+              {championsVersusSplashart(c.name)}
+              <span className="z-20 text-white text-2xl font-stroke-blue-primary">
+                {c.name}
+              </span>
+            </section>
+          ))}
+        </div>
       </main>
     </>
   );
