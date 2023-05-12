@@ -3,6 +3,7 @@ import { useState } from "react";
 import { URLSplashArt } from "../services/communityDragon";
 import { ChampionDTO } from "../types/championDTO";
 import { PrismaClient, Champion, Versus } from "@prisma/client";
+import { useRouter } from "next/router";
 
 export async function getStaticProps() {
   const prisma = new PrismaClient();
@@ -30,59 +31,37 @@ export function championsVersusSplashart(championName1: string): JSX.Element {
   );
 }
 
-export async function voteForChampion(
-  champions: Array<ChampionDTO>,
-  championsChoice: string
-) {
-  const prisma = new PrismaClient();
-
-  if (champions.length !== 2) {
-    console.error("Impossible to vote");
-    return;
-  }
-
-  const sortedChampionsDB = champions.sort().map(async (champion) => {
-    const championDB = await prisma.champion.findFirst({
-      where: { name: champion.name },
-    });
-    return championDB;
-  });
-  const champion1DB = sortedChampionsDB[0];
-  const champion2DB = sortedChampionsDB[1];
-
-  if (!champion1DB || !champion2DB) {
-    console.error("Impossible to vote");
-    return null;
-  }
-
-  console.log(champion1DB, champion2DB);
-
-  /*const versus = await prisma.versus.findFirst({
-    where: {
-      AND: [
-        { champion1: { name: champion1DB.name } },
-        { champion2: { name: champion2DB.name } },
-      ],
-    },
-  });
-
-  if (!versus) {
-    await prisma.versus.create({
-      data: {
-        ch,
-      },
-    });
-  }*/
-}
-
 export default function VersusLoL({
   championsVersus,
 }: {
   championsVersus: Array<ChampionDTO>;
 }) {
+  const router = useRouter();
   const [champions, setChampions] = useState(championsVersus);
 
   // voteForChampion(champions, "alistar");
+
+  const addVoteChampion = async (championName: string) => {
+    try {
+      const response = await fetch("/api/addVote", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          championName: championName,
+        }),
+      });
+      if (!response.ok) {
+        console.error("Error:", response.status);
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    setTimeout(() => router.reload(), 5000);
+  };
 
   return (
     <>
@@ -92,6 +71,7 @@ export default function VersusLoL({
             <section
               className="h-full relative w-[50%] flex justify-center items-center overflow-hidden"
               key={i}
+              onClick={() => addVoteChampion(c.name)}
             >
               {championsVersusSplashart(c.name)}
               <span className="z-20 text-white text-2xl font-stroke-blue-primary">
