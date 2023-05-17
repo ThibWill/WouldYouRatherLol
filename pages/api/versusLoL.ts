@@ -12,12 +12,12 @@ async function findFirstChampionOnName(championName: string): Promise<Champion |
   return champion;
 }
 
-async function findVersusOnChampionsName(champion1Name: string, champion2Name: string): Promise<Versus | null> {
+async function findFirstVersusOnChampionsName(champion1Name: string, champion2Name: string): Promise<Versus | null> {
   const versus: Versus | null = await prisma.versus.findFirst({
     where: {
       AND: [
         { champion1: { name : champion1Name } },
-        { champion2: { name : champion1Name } },
+        { champion2: { name : champion2Name } },
       ],
     },
     include: {
@@ -27,6 +27,17 @@ async function findVersusOnChampionsName(champion1Name: string, champion2Name: s
   });
 
   return versus;
+}
+
+async function incrementVotesChampionOnName(championName: string): Promise<void> {
+  await prisma.champion.update({
+    where: {
+      name: championName
+    },
+    data: {
+      votes: { increment: 1}
+    }
+  });
 }
 
 export default async function versusLoL(
@@ -46,12 +57,10 @@ export default async function versusLoL(
     return res.status(400).json({ err: "Bad inputs" });
   }
 
-  const versus = await findVersusOnChampionsName(champion1Name, champion2Name);
-  console.log(versus);
+  const versus = await findFirstVersusOnChampionsName(champion1Name, champion2Name);
 
-  // TODO : Refacto upsert
+  // TODO: Refacto to upsert
   if (versus) {
-    console.log("Update")
     await prisma.versus.update({
       where: {
         id: versus.id
@@ -62,28 +71,25 @@ export default async function versusLoL(
       }
     });
   } else {
-    console.log("Creation")
-    try {
-      await prisma.versus.create({
-        data: {
-          champion1Votes: choice === champion1Name ? 1 : 0,
-          champion2Votes: choice === champion2Name ? 1 : 0,
-          champion1: {
-            connect: {
-              id: champion1.id
-            }
-          },
-          champion2: {
-            connect: {
-              id: champion2.id
-            }
+    await prisma.versus.create({
+      data: {
+        champion1Votes: choice === champion1Name ? 1 : 0,
+        champion2Votes: choice === champion2Name ? 1 : 0,
+        champion1: {
+          connect: {
+            id: champion1.id
+          }
+        },
+        champion2: {
+          connect: {
+            id: champion2.id
           }
         }
-      });
-    } catch {
-      console.log("ERROR")
-    }
+      }
+    });
   }
+
+  incrementVotesChampionOnName(choice);
 
   return res.status(200).json({ mess: "updated" });
 }
