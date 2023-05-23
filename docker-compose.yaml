@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   db:
-    container_name: pg_container
+    container_name: db
     image: postgres:15.2
     restart: always
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: db_lol
     ports:
       - "5432:5432"
@@ -20,4 +20,17 @@ services:
     ports:
       - 8080:8080
 
-  
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: runner
+    depends_on:
+      - db
+    volumes:
+      - ./:/var/lib/docker/volumes/versuslolapp
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
