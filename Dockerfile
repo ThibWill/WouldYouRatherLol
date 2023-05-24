@@ -19,11 +19,11 @@ COPY --from=dependencies /node_modules ./node_modules
 COPY --from=dependencies /package.json ./package.json
 COPY . .
 
-RUN npx prisma generate
-
 EXPOSE 3000
 
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV PORT 3000
 
-CMD ["npm", "run", "start:migrate:dev"]
+RUN npm run prisma:generate
+
+CMD ["npm", "run", "dev"]
