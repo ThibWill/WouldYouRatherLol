@@ -29,6 +29,32 @@ async function findFirstVersusOnChampionsName(champion1Name: string, champion2Na
   return versus;
 }
 
+async function upsertVersusOnVersusId(versus: Versus | null, choice: string, champion1: Champion, champion2: Champion) {
+  await prisma.versus.upsert({
+    where: {
+      id: versus?.id || '00000000-0000-0000-0000-000000000000',
+    },
+    update: {
+      champion1Votes: versus && choice === champion1.name ? versus.champion1Votes + 1 : versus?.champion1Votes,
+      champion2Votes: versus && choice === champion2.name ? versus.champion2Votes + 1 : versus?.champion2Votes
+    },
+    create: {
+      champion1Votes: choice === champion1.name ? 1 : 0,
+      champion2Votes: choice === champion2.name ? 1 : 0,
+      champion1: {
+        connect: {
+          id: champion1.id
+        }
+      },
+      champion2: {
+        connect: {
+          id: champion2.id
+        }
+      }
+    }
+  });
+}
+
 async function incrementVotesChampionOnName(championName: string): Promise<void> {
   await prisma.champion.update({
     where: {
@@ -59,37 +85,9 @@ export default async function versusLoL(
 
   const versus = await findFirstVersusOnChampionsName(champion1Name, champion2Name);
 
-  // TODO: Refacto to upsert
-  if (versus) {
-    await prisma.versus.update({
-      where: {
-        id: versus.id
-      },
-      data: {
-        champion1Votes: choice === champion1Name ? versus.champion1Votes + 1 : versus.champion1Votes,
-        champion2Votes: choice === champion2Name ? versus.champion2Votes + 1 : versus.champion2Votes
-      }
-    });
-  } else {
-    await prisma.versus.create({
-      data: {
-        champion1Votes: choice === champion1Name ? 1 : 0,
-        champion2Votes: choice === champion2Name ? 1 : 0,
-        champion1: {
-          connect: {
-            id: champion1.id
-          }
-        },
-        champion2: {
-          connect: {
-            id: champion2.id
-          }
-        }
-      }
-    });
-  }
+  await upsertVersusOnVersusId(versus, choice, champion1, champion2);
 
-  incrementVotesChampionOnName(choice);
+  await incrementVotesChampionOnName(choice);
 
   return res.status(200).json({ mess: "updated" });
 }
