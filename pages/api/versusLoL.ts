@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { assert, object, string, number, refine } from 'superstruct'
 import { Champion, Versus } from "@prisma/client";
 import prisma from "../../prisma/prismaClient";
 
@@ -66,6 +67,7 @@ async function incrementVotesChampionOnName(championName: string): Promise<void>
   });
 }
 
+// TODO champion id strategy instead of champion name
 export default async function versusLoL(
   req: NextApiRequest,
   res: NextApiResponse
@@ -76,11 +78,24 @@ export default async function versusLoL(
 
   const { champion1Name, champion2Name, choice } = req.body;
 
+  // Input validation
+  const bodyVersus = object({
+    champion1Name: string(),
+    champion2Name: refine(string(), 'champion2Name', (v) => v !== champion1Name ),
+    vote: refine(string(), 'choice', (v) => v === champion1Name || v === champion2Name),
+  });
+
+  try {
+    assert(req.body, bodyVersus);
+  } catch(e) {
+    return res.status(400).json({ err: "Invalid inputs" });
+  }
+
   const champion1 = await findFirstChampionOnName(champion1Name);
   const champion2 = await findFirstChampionOnName(champion2Name);
 
-  if (!champion1 || !champion2 || champion1Name === champion2Name || ![champion1Name, champion2Name].includes(choice)) {
-    return res.status(400).json({ err: "Bad inputs" });
+  if (!champion1 || !champion2) {
+    return res.status(404).json({ err: "One of the champion does not exist" });
   }
 
   const versus = await findFirstVersusOnChampionsName(champion1Name, champion2Name);
