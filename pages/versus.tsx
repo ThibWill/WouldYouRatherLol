@@ -2,48 +2,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { URLSplashArt } from "../services/communityDragon";
 import { ChampionDTO } from "../types/championDTO";
-
-const addVoteChampion = async (championName: string) => {
-  try {
-    const response = await fetch("/api/addVote", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        championName: championName,
-      }),
-    });
-
-    if (!response.ok) {
-      console.error("Error:", response.status);
-      return;
-    }
-
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const championsVersus = async (): Promise<Array<ChampionDTO> | undefined> => {
-  try {
-    const response = await fetch("/api/championsVersus", {
-      method: "GET"
-    });
-
-    if (!response.ok) {
-      console.error("Error:", response.status);
-      return;
-    }
-
-    const champions = await response.json() as Array<ChampionDTO>;
-
-    return champions;
-  } catch (error) {
-    console.error(error);
-    return;
-  }
-};
+import { championsVersus, addVoteChampion } from "../services/localAPI";
 
 function championsVersusSplashArt(championName1: string): JSX.Element {
   return (
@@ -58,7 +17,7 @@ function championsVersusSplashArt(championName1: string): JSX.Element {
 
 export default function VersusLoL()
 {
-  const [champions, setChampions] = useState<Array<ChampionDTO> | undefined>([]);
+  const [champions, setChampions] = useState<Array<ChampionDTO> | []>([]);
   const [displayMode, setDisplayMode] = useState(true);
 
   useEffect(() => {
@@ -66,16 +25,17 @@ export default function VersusLoL()
       .then(champions => setChampions(champions))
   }, [])
 
-  const executeStateAndChangeStateOnClick = async (championName?: string) => {
+  const executeStateAndChangeStateOnClick = async (choice?: string) => {
     if (!displayMode) {
       const newChampions = await championsVersus();
       setChampions(newChampions);
     } else {
-      if (!championName) {
+      if (!choice) {
         return console.error('No champion to vote for');
-      }
-
-      await addVoteChampion(championName);
+      } 
+      const champion1Name = champions[0].name;
+      const champion2Name = champions[1].name;
+      await addVoteChampion(champion1Name, champion2Name, choice);
     }
     
     setDisplayMode(!displayMode);
