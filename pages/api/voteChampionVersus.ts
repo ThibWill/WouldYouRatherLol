@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { assert, object, string, number, refine } from 'superstruct'
+import { assert, object, string, refine } from 'superstruct';
 import { Champion, Versus } from "@prisma/client";
 import prisma from "../../prisma/prismaClient";
 
@@ -62,13 +62,13 @@ async function incrementVotesChampionOnName(championName: string): Promise<void>
       name: championName
     },
     data: {
-      votes: { increment: 1}
+      votes: { increment: 1 }
     }
   });
 }
 
 // TODO champion id strategy instead of champion name
-export default async function versusLoL(
+export default async function voteChampionVersus(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -82,7 +82,7 @@ export default async function versusLoL(
   const bodyVersus = object({
     champion1Name: string(),
     champion2Name: refine(string(), 'champion2Name', (v) => v !== champion1Name ),
-    vote: refine(string(), 'choice', (v) => v === champion1Name || v === champion2Name),
+    choice: refine(string(), 'choice', (v) => v === champion1Name || v === champion2Name),
   });
 
   try {
