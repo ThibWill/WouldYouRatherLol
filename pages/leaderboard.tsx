@@ -7,6 +7,7 @@ type ChampionDTO = {
   votes: number;
 };
 
+// TODO change to getServerSideProps
 export async function getStaticProps() {
   const prisma = new PrismaClient();
   const champions = await prisma.champion.findMany();
