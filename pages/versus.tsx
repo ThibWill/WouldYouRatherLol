@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { URLSplashArt } from "../services/communityDragon";
 import { ChampionDTO } from "../types/championDTO";
 import { championsVersus, addVoteChampion } from "../services/localAPI";
+import styles from '../styles/versus.module.css'
 
 function championsVersusSplashArt(championName1: string): JSX.Element {
   return (
@@ -47,16 +48,18 @@ export default function VersusLoL()
       return ([]);
     }
 
-    return champions.map((c, i) => (
+    return champions.map((champion, i) => (
       <section
-          className="h-full relative w-[50%] flex justify-center items-center overflow-hidden"
+          className="h-full relative w-[50%] flex justify-center items-center overflow-hidden cursor-pointer"
           key={i}
-          onClick={() => executeStateAndChangeStateOnClick(displayMode ? c.name : undefined)}
+          onClick={() => executeStateAndChangeStateOnClick(displayMode ? champion.name : undefined)}
         >
           {/* championsVersusSplashArt(c.name) */}
-          <span className="z-20 text-white text-2xl font-stroke-blue-primary flex flex-col">
-            <span>{c.name}</span>
-            {!displayMode && <span>VOTES : {c.votes}</span>}
+          <span 
+            className={["z-20 text-white text-center text-2xl font-stroke-blue-primary flex flex-col", styles["fade-in-text"]].join(" ")}
+          >
+            <span>{champion.name}</span>
+            {!displayMode && <span>VOTES : {champion.votes}</span>}
           </span>
       </section>
     ))
