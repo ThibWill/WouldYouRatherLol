@@ -61,8 +61,9 @@ export default function VersusLoL()
             <span>{champion.name}</span>
             {!displayMode && 
               <span className={styles["fade-in-text"]}>
-                {((
-                  champion.votes * 100) / champions.reduce((acc: number, champ: ChampionDTO) => acc + champ.votes, 0)
+                {(
+                  (champion.votes * 100) / 
+                  champions.map(champion => champion.votes).reduce((acc: number, votes: number) => acc + votes, 0)
                 ).toFixed(1)}%
               </span>
             }
