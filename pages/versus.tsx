@@ -54,12 +54,18 @@ export default function VersusLoL()
           key={i}
           onClick={() => executeStateAndChangeStateOnClick(displayMode ? champion.name : undefined)}
         >
-          {/* championsVersusSplashArt(c.name) */}
+          { championsVersusSplashArt(champion.name) }
           <span 
-            className={["z-20 text-white text-center text-2xl font-stroke-blue-primary flex flex-col", styles["fade-in-text"]].join(" ")}
+            className="z-20 text-white text-center text-2xl font-stroke-blue-primary flex flex-col"
           >
             <span>{champion.name}</span>
-            {!displayMode && <span>VOTES : {champion.votes}</span>}
+            {!displayMode && 
+              <span className={styles["fade-in-text"]}>
+                {((
+                  champion.votes * 100) / champions.reduce((acc: number, champ: ChampionDTO) => acc + champ.votes, 0)
+                ).toFixed(1)}%
+              </span>
+            }
           </span>
       </section>
     ))
