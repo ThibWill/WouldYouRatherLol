@@ -24,6 +24,4 @@ EXPOSE 3000
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV PORT 3000
 
-RUN npm run prisma:generate
-
 CMD ["npm", "run", "dev"]
